@@ -7,11 +7,11 @@
 #outputs: "below_pearce_sampling_sites_YYYY.csv" table with sampling sites and alternates
 #write.csv lines currently masked with # to avoid overwriting existing tables
 
-
+tripid = "PF20200722"
 n.sites.day <- 17
 
 #load data
-sites <- read.csv("all_sites.csv")
+sites <- read.csv("./data/below_pearce_sites.csv")
 
 #order sites, add end points to each site
 sites <- sites[order(sites$bank, sites$RM),]
@@ -62,5 +62,7 @@ selected.sites <- selected.sites[order(selected.sites$reach,
                                        selected.sites$notes,
                                        selected.sites$RM),]
 
-write.csv(selected.sites, file = "sampling_sites_2019.csv", row.names = FALSE)
+write.csv(selected.sites,
+   file = paste0("./output_selected_sites/", tripid, "_sampling_sites.csv"),
+   row.names = FALSE)
 
