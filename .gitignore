@@ -1,0 +1,7 @@
+# I don't save these anyway, but in here as default ignores
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+# ignore all files in output_selected_sites folder
+output_selected_sites/
