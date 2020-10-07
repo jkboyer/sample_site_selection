@@ -7,7 +7,7 @@
 #outputs: "below_pearce_sampling_sites_YYYY.csv" table with sampling sites and alternates
 #write.csv lines currently masked with # to avoid overwriting existing tables
 
-tripid = "PF20200722"
+tripid = "PF20201014"
 n.sites.day <- 17
 
 #load data
