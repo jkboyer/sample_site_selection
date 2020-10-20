@@ -1,4 +1,4 @@
-#selects sites for diamond down sampling
+#selects sites for grand canyon or diamond down sampling
 
 library(tidyverse)
 library(BalancedSampling) #spatially balanced sampling
@@ -7,6 +7,10 @@ library(BalancedSampling) #spatially balanced sampling
 #MUST UPDATE for each trip before running script to select sites
 current.year <- 2020
 trip.id <- "GC20201025"
+#start and end miles of trip
+#0.0 - 281.6 for full Grand Canyon, 226.0 - 281.6 for diamond down
+trip.start.rm <- 226.0
+trip.end.rm <- 281.6
 n.nights <- 4 #n sampling nights
 n.ef.sites <- 24 #n efish sites per reach (total, for both boats)
 n.hoop.sites <- 16 #n hoop sites per reach (total, for both boats)
@@ -33,17 +37,18 @@ sites <- bind_rows(left, right)
 
 rm(left, right)
 
-#subset to diamond down only
+#for diamond downs subset to diamond down only
+#if
 sites <- sites %>%
-  filter(RiverMile_100ths >= 226.0 & #below diamond
-           RiverMile_100ths < 281.6) %>% #and above pearce ferry rapid
+  filter(RiverMile_100ths >= trip.start.rm & #below diamond
+           RiverMile_100ths < trip.end.rm) %>% #and above pearce ferry rapid
   filter(!is.na(reach))
 
 total.sites = nrow(sites)
 
 reaches <- reaches %>%
-  filter(start.rm >= 226.0 &
-           start.rm < 281.6) %>%
+  filter(start.rm >= trip.start.rm &
+           start.rm < trip.end.rm) %>%
   #recalculate percent length for diamond down only
   mutate(perc = no.sites/total.sites) %>%
   # determine how many sites would be selected in each reach
