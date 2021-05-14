@@ -11,9 +11,9 @@ s <- read.csv("./data/LF_sites.csv", stringsAsFactors = FALSE)
 
 #Information about trip
 #MUST UPDATE for each trip before running script to select sites
-current.year <- 2020
-trip.id <- "LF20200921"
-nonnative <- TRUE #TRUE or FALSE. Is nonnative sampling happening
+current.year <- 2021
+trip.id <- "LF20210308"
+nonnative <- FALSE #TRUE or FALSE. Is nonnative sampling happening
 n.sites <- 40 #n monitoring sites to sample
 
 #calculate number of sites to pick per section (upper, middle, low)

@@ -7,7 +7,7 @@
 #outputs: "below_pearce_sampling_sites_YYYY.csv" table with sampling sites and alternates
 #write.csv lines currently masked with # to avoid overwriting existing tables
 
-tripid = "PF20201014"
+tripid = "PF20210421"
 n.sites.day <- 17
 
 #load data
@@ -42,7 +42,7 @@ selected.sites <- do.call(rbind, samples) #make dataframe with selected sites
 selected.sites <- selected.sites[order(selected.sites$reach,
                                        selected.sites$RM),]
 
-selected.sites$notes <- paste0("P", #for below pearce
+selected.sites$notes <- paste0(selected.sites$bank,
                               ifelse(selected.sites$reach == 3, 1, #sample lower reach day 1
                                      ifelse(selected.sites$reach == 1, 2, #uppder reach day 2
                                             3))) #middle reach last

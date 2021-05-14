@@ -5,14 +5,14 @@ library(BalancedSampling) #spatially balanced sampling
 
 #Information about trip
 #MUST UPDATE for each trip before running script to select sites
-current.year <- 2020
-trip.id <- "GC20201025"
+current.year <- 2021
+trip.id <- "GC20210403"
 #start and end miles of trip
 #0.0 - 281.6 for full Grand Canyon, 226.0 - 281.6 for diamond down
-trip.start.rm <- 226.0
+trip.start.rm <- 0.0
 trip.end.rm <- 281.6
-n.nights <- 4 #n sampling nights
-n.ef.sites <- 24 #n efish sites per reach (total, for both boats)
+n.nights <- 13 #n sampling nights
+n.ef.sites <- 20 #n efish sites per reach (total, for both boats)
 n.hoop.sites <- 16 #n hoop sites per reach (total, for both boats)
 
 
@@ -36,12 +36,16 @@ right <- sites %>%
 sites <- bind_rows(left, right)
 
 rm(left, right)
+min(sites$RiverMile_100ths)
+max(sites$RiverMile_100ths)
 
-#for diamond downs subset to diamond down only
-#if
+#subset to river miles defined at top of code
+#this will keep all sites if RM = 0-281.6, or subset for diamond down if
+#RM = 226-281.6
 sites <- sites %>%
-  filter(RiverMile_100ths >= trip.start.rm & #below diamond
+  filter(RiverMile_100ths >= trip.start.rm & #below start RM
            RiverMile_100ths < trip.end.rm) %>% #and above pearce ferry rapid
+  #remove sites that do not have reach (rapids between reaches)
   filter(!is.na(reach))
 
 total.sites = nrow(sites)
@@ -53,12 +57,16 @@ reaches <- reaches %>%
   mutate(perc = no.sites/total.sites) %>%
   # determine how many sites would be selected in each reach
   # if reach has > 54 sites, select full number of sites
-  # if reach has < 54 sites, select 44% of total sites for efishing,
-  #                             and 22% of total sites for hoop nets
+  # if reach has < 54 sites, select 37% of total sites for efishing,
+  #                             and 19% of total sites for hoop nets
   mutate(n.ef.sites = ifelse(no.sites >= 54, n.ef.sites,
-                                ceiling(no.sites*0.44)),
+                                ceiling(no.sites*0.37)),
+         #if full length reach, select full number of hoop net sites
          n.hoop.sites = ifelse(no.sites >= 54, n.hoop.sites,
-                               ceiling(no.sites*0.22)))
+                               ceiling(no.sites*0.19))) %>%
+  #adjust hoop net sample size in marble canyon
+  mutate(n.hoop.sites = ifelse(reach <= 5, 4,
+                               ifelse(reach %in% c(6:7, 9:12), 6, n.hoop.sites)))
 
 #join n sites to site table
 sample.sizes <- reaches %>%
@@ -87,6 +95,9 @@ selected.r <- lpm1(probability, reach.dm) +
   #add number of upstream reaches to get reach numbers
   (min(reaches$reach) - 1)
 selected.r
+
+#manually define reaches so running code again will not change reaches for GC20210403
+selected.r <- c(2,9,13,17,31,48,53,57,65,69,77,80,83)
 
 #subset reach dataframe to only selected reaches
 selected.reaches <- reaches %>%
@@ -147,7 +158,7 @@ selected <- selected %>%
 selected <- selected %>%
   #add contiguous comments if needed
   mutate(comments = case_when(
-    GEAR_CODE == "MHB" ~ paste0(side, "0", day),
+    GEAR_CODE == "MHB" ~ paste0(side, "0", day, " mile:                    time:"),
     site.id == lag(end.rm) & end.rm == lead(site.id) &
       GEAR_CODE == "EL" &
       GEAR_CODE == lag(GEAR_CODE) &
@@ -163,9 +174,19 @@ selected <- selected %>%
         "yellow start",
     TRUE ~ ""))
 
+#selected reaches - calculate travel distance etc.
+selected.reaches <- selected.reaches %>%
+  mutate(travel = end.rm - lag(end.rm))
+
+sum(selected.reaches$n.ef.sites)
+sum(selected.reaches$n.hoop.sites)
+
 #SAVE ########
 #commented out to avoid overwriting existing file
 #uncomment when making new file for next year
 #write.csv(selected, paste0("./output_selected_sites/", trip.id, "sampling_sites.csv"),
-     #     row.names = FALSE)
+#          row.names = FALSE)
+#write.csv(selected.reaches, paste0("./output_selected_sites/", trip.id, "reaches.csv"),
+#          row.names = FALSE)
 
+#
